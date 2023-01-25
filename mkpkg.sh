@@ -31,21 +31,18 @@ echo "{
     \"main\": \"dist/index.js\",
     \"types\": \"dist\",
     \"scripts\": {
-        \"test\": \"ts-node tests/index.ts\",
-        \"eslint\": \"eslint\",
-        \"eslint:fix\": \"eslint --fix\",
-        \"docs\": \"rm -rf docs && typedoc && typedoc --plugin typedoc-plugin-coverage --plugin typedoc-plugin-markdown\",
+        \"dev\": \"ts-node src/index.ts\",
+        \"lint\": \"eslint\",
         \"build\": \"rm -rf dist && tsc\",
-        \"build:watch\": \"rm -rf dist && tsc --watch\",
-        \"build:test\": \"tsc --noEmit\",
-        \"node\": \"node .\",
-        \"tsn\": \"ts-node src/index.ts\"
+        \"test\": \"ts-node tests/index.ts\",
+        \"docs\": \"rm -rf docs && typedoc && typedoc --plugin typedoc-plugin-coverage --plugin typedoc-plugin-markdown\",
+        \"start\": \"node .\"
     },
     \"repository\": {
         \"type\": \"git\",
-        \"url\": \"https://github.com/Didas-git/shochu.git\"
+        \"url\": \"https://github.com/Didas-git/Shochu.git\"
     },
-    \"homepage\": \"https://github.com/Didas-git/shochu/tree/main/packages/$packageName\"
+    \"homepage\": \"https://github.com/Didas-git/Shochu/tree/main/packages/$packageName\"
 }" > package.json
 
 # typescript shenanigans
