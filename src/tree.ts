@@ -142,10 +142,9 @@ export class Tree {
                 if (part[j] !== node.part[j]) {
                     const existingChild = Object.assign(Object.create(Object.getPrototypeOf(node) as typeof TrieNode), node) as TrieNode;
                     existingChild.part = node.part.slice(j);
-
                     const newChild = new TrieNode(part.slice(j));
 
-                    const newNode = new TrieNode(part);
+                    const newNode = new TrieNode(node.part.slice(0, j));
                     newNode.inert = [
                         existingChild,
                         newChild

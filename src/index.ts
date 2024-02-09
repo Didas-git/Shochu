@@ -8,11 +8,13 @@ export class Shochu {
 
     #any(method: string, path: string, executer: () => any): this {
         if (path.includes("*") || path.includes(":")) {
-            if (!(method in this.#tries)) this.#tries.set(method, new Radix());
-            this.#tries.get(method)?.add(path, executer);
+            const radix = this.#tries.get(method);
+            if (typeof radix === "undefined") this.#tries.set(method, new Radix().add(path, executer));
+            else radix.add(path, executer);
         } else {
-            if (!(method in this.#static)) this.#static.set(method, []);
-            this.#static.get(method)?.push([path, executer]);
+            const route = this.#static.get(method);
+            if (typeof route === "undefined") this.#static.set(method, [[path, executer]]);
+            else route.push([path, executer]);
         }
 
         return this;
@@ -89,7 +91,13 @@ ${ctx.contextName}.path=${ctx.pathEndName}===-1?${ctx.urlName}.substring(${ctx.p
 const s = new Shochu();
 
 //@ts-expect-error No types yet
-s.get("somereallylongidforthis/:x", (ctx) => {
+s.get("a/c/:x", (ctx) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return Response.json(ctx.params);
+});
+
+//@ts-expect-error No types yet
+s.get("b/:s", (ctx) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return Response.json(ctx.params);
 });
