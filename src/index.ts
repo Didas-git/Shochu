@@ -3,7 +3,7 @@ import { Radix, createContext } from "./radix.js";
 export class Shochu {
     readonly #tries = new Map<string, Radix>();
     readonly #static = new Map<string, Array<[string, () => any]>>();
-    readonly #matchers = new Map<string, [Record<string, unknown>, () => any]>();
+    readonly #matchers: Record<string, [Record<string, unknown>, () => any]> = {};
     #finder!: (req: Request) => (((...args: Array<any>) => any) | null);
 
     #any(method: string, path: string, executer: () => any): this {
@@ -13,6 +13,7 @@ export class Shochu {
             else radix.add(path, executer);
         } else {
             const route = this.#static.get(method);
+            if (!path.startsWith("/")) path = `/${path}`;
             if (typeof route === "undefined") this.#static.set(method, [[path, executer]]);
             else route.push([path, executer]);
         }
@@ -42,9 +43,8 @@ export class Shochu {
     #compile(): this {
         for (const [method, path] of this.#static) {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            if (!this.#matchers.has(method)) this.#matchers.set(method, [ {}, (() => {})]);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const matcherMethod = this.#matchers.get(method)!;
+            if (!(method in this.#matchers)) this.#matchers[method] = [ {}, (() => {})];
+            const matcherMethod = this.#matchers[method];
 
             for (let i = 0, { length } = path; i < length; i++) {
                 const route = path[i];
@@ -55,9 +55,8 @@ export class Shochu {
 
         for (const [method, radix] of this.#tries) {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            if (!this.#matchers.has(method)) this.#matchers.set(method, [ {}, (() => {})]);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const matcherMethod = this.#matchers.get(method)!;
+            if (!(method in this.#matchers)) this.#matchers[method] = [ {}, (() => {})];
+            const matcherMethod = this.#matchers[method];
             matcherMethod[1] = radix.build();
         }
 
@@ -70,7 +69,7 @@ export class Shochu {
         const { value, path } = this.#buildPathParser();
         // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-assignment
         this.#finder = new Function("matchers", `return (c)=>{
-const matcher = matchers.get(c.method);
+const matcher = matchers[c.method];
 if (typeof matcher === "undefined") return;
 ${value} return matcher[0][${path}] ?? matcher[1](c)
 }`)(this.#matchers);
@@ -88,16 +87,21 @@ ${ctx.contextName}.path=${ctx.pathEndName}===-1?${ctx.urlName}.substring(${ctx.p
     }
 }
 
+// //@ts-expect-error No types yet
+// s.get("a/c/:x", (ctx) => {
+//     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+//     return Response.json(ctx.params);
+// });
+
+// //@ts-expect-error No types yet
+// s.get("b/:s", (ctx) => {
+//     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+//     return Response.json(ctx.params);
+// });
 const s = new Shochu();
 
 //@ts-expect-error No types yet
-s.get("a/c/:x", (ctx) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return Response.json(ctx.params);
-});
-
-//@ts-expect-error No types yet
-s.get("b/:s", (ctx) => {
+s.get("x/:id", (ctx) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return Response.json(ctx.params);
 });
