@@ -1,9 +1,3 @@
-export interface ParamNode {
-    paramName: string;
-    store: unknown;
-    inert: TrieNode | null;
-}
-
 export class TrieNode {
     public part: string;
     public store: (() => any) | null = null;

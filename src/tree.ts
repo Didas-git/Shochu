@@ -291,4 +291,8 @@ export class Tree {
 
         return builder;
     }
+
+    public get root(): TrieNode {
+        return this.#root;
+    }
 }
